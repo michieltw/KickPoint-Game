@@ -742,7 +742,7 @@
     scene.background = new THREE.Color('#020617');
 
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 10, 40000);
-    camera.position.set(0, 1000, 2800);
+    camera.position.set(0, 1000, -17700);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -754,7 +754,7 @@
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    controls.target.set(0, 600, -200);
+    controls.target.set(0, 600, -20700);
     controls.enableRotate = true;
     controls.enablePan = true;
     controls.enableZoom = true;
@@ -875,43 +875,56 @@
     const puckGeo = new THREE.CylinderGeometry(38, 38, 25, 32);
     const puckMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.8 });
     game.puck = new THREE.Mesh(puckGeo, puckMat);
-    // Position puck near where the blade normally ends up
-    game.puck.position.set(95, 12.5, 76);
+    // Position puck near where the blade normally ends up, between the hash marks and slightly further away
+    game.puck.position.set(95, 12.5, -20576);
     scene.add(game.puck);
 
     // --- SETUP BOARDING ---
     const boardGroup = new THREE.Group();
 
-    const boardMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 });
-    const kickPlateMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.5 }); // yellow
+    // Load Logo Texture for Boards
+    const textureLoader = new THREE.TextureLoader();
+    const logoTex = textureLoader.load('./logo.png');
+    logoTex.wrapS = THREE.RepeatWrapping;
+    logoTex.wrapT = THREE.RepeatWrapping;
+    // Flip texture horizontally to correct mirroring
+    logoTex.repeat.set(-10, 1);
+
+    const boardMat = new THREE.MeshStandardMaterial({ color: 0xffffff, map: logoTex, roughness: 0.2, side: THREE.DoubleSide });
+    const kickPlateMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.5, side: THREE.DoubleSide }); // yellow
     const topRailMat = new THREE.MeshStandardMaterial({ color: 0x0033a0, roughness: 0.3 }); // blue
     const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.9, opacity: 1, transparent: true, roughness: 0.1, ior: 1.5, side: THREE.DoubleSide });
 
     const boardHeight = 1100;
     const glassHeight = 2000;
+    const cornerRadius = 8500;
 
-    // Far wall
+    // Rink geometry constants
+    const straightWidth = rinkWidth - (2 * cornerRadius); // Width of far straight section
+    const straightDepth = rinkDepth - cornerRadius; // Depth of side straight sections (assuming flat bottom at z=0 for now)
+
+    // Far wall straight section
     const farWall = new THREE.Group();
-    const farBoard = new THREE.Mesh(new THREE.PlaneGeometry(rinkWidth, boardHeight), boardMat);
+    const farBoard = new THREE.Mesh(new THREE.PlaneGeometry(straightWidth, boardHeight), boardMat);
     farBoard.position.y = boardHeight/2;
-    const farKick = new THREE.Mesh(new THREE.PlaneGeometry(rinkWidth, 200), kickPlateMat);
+    const farKick = new THREE.Mesh(new THREE.PlaneGeometry(straightWidth, 200), kickPlateMat);
     farKick.position.y = 100;
     farKick.position.z = 5;
-    const farRail = new THREE.Mesh(new THREE.BoxGeometry(rinkWidth, 50, 100), topRailMat);
+    const farRail = new THREE.Mesh(new THREE.BoxGeometry(straightWidth, 50, 100), topRailMat);
     farRail.position.y = boardHeight;
-    const farGlass = new THREE.Mesh(new THREE.PlaneGeometry(rinkWidth, glassHeight), glassMat);
+    const farGlass = new THREE.Mesh(new THREE.PlaneGeometry(straightWidth, glassHeight), glassMat);
     farGlass.position.y = boardHeight + glassHeight/2;
     farWall.add(farBoard, farKick, farRail, farGlass);
-    farWall.position.z = -30000;
+    farWall.position.z = -rinkDepth;
     boardGroup.add(farWall);
 
-    // Left wall
-    const sideWallGeo = new THREE.PlaneGeometry(rinkDepth, boardHeight);
-    const sideKickGeo = new THREE.PlaneGeometry(rinkDepth, 200);
-    const sideGlassGeo = new THREE.PlaneGeometry(rinkDepth, glassHeight);
-    const sideRailGeo = new THREE.BoxGeometry(rinkDepth, 50, 100);
-
+    // Left wall straight section
     const leftWall = new THREE.Group();
+    const sideWallGeo = new THREE.PlaneGeometry(straightDepth, boardHeight);
+    const sideKickGeo = new THREE.PlaneGeometry(straightDepth, 200);
+    const sideGlassGeo = new THREE.PlaneGeometry(straightDepth, glassHeight);
+    const sideRailGeo = new THREE.BoxGeometry(straightDepth, 50, 100);
+
     const leftBoard = new THREE.Mesh(sideWallGeo, boardMat);
     leftBoard.position.y = boardHeight/2;
     const leftKick = new THREE.Mesh(sideKickGeo, kickPlateMat);
@@ -924,16 +937,16 @@
     leftWall.add(leftBoard, leftKick, leftRail, leftGlass);
     leftWall.rotation.y = Math.PI/2;
     leftWall.position.x = -rinkWidth/2;
-    leftWall.position.z = -15000;
+    leftWall.position.z = -straightDepth/2;
     boardGroup.add(leftWall);
 
-    // Right wall
+    // Right wall straight section
     const rightWall = new THREE.Group();
     const rightBoard = new THREE.Mesh(sideWallGeo, boardMat);
     rightBoard.position.y = boardHeight/2;
     const rightKick = new THREE.Mesh(sideKickGeo, kickPlateMat);
     rightKick.position.y = 100;
-    rightKick.position.z = 5;
+    rightKick.position.z = -5; // Point towards center
     const rightRail = new THREE.Mesh(sideRailGeo, topRailMat);
     rightRail.position.y = boardHeight;
     const rightGlass = new THREE.Mesh(sideGlassGeo, glassMat);
@@ -941,8 +954,55 @@
     rightWall.add(rightBoard, rightKick, rightRail, rightGlass);
     rightWall.rotation.y = -Math.PI/2;
     rightWall.position.x = rinkWidth/2;
-    rightWall.position.z = -15000;
+    rightWall.position.z = -straightDepth/2;
     boardGroup.add(rightWall);
+
+    // Corners
+    // Top Left Corner (Far Left)
+    const cornerGeo = new THREE.CylinderGeometry(cornerRadius, cornerRadius, boardHeight, 32, 1, true, Math.PI, Math.PI/2);
+    const cornerKickGeo = new THREE.CylinderGeometry(cornerRadius - 5, cornerRadius - 5, 200, 32, 1, true, Math.PI, Math.PI/2);
+    const cornerGlassGeo = new THREE.CylinderGeometry(cornerRadius, cornerRadius, glassHeight, 32, 1, true, Math.PI, Math.PI/2);
+    // Rail uses Torus for curved edge
+    const cornerRailGeo = new THREE.TorusGeometry(cornerRadius, 25, 8, 32, Math.PI/2);
+
+    const tlCorner = new THREE.Group();
+    const tlBoard = new THREE.Mesh(cornerGeo, boardMat);
+    tlBoard.position.y = boardHeight/2;
+    const tlKick = new THREE.Mesh(cornerKickGeo, kickPlateMat);
+    tlKick.position.y = 100;
+    const tlGlass = new THREE.Mesh(cornerGlassGeo, glassMat);
+    tlGlass.position.y = boardHeight + glassHeight/2;
+    const tlRail = new THREE.Mesh(cornerRailGeo, topRailMat);
+    tlRail.rotation.x = Math.PI/2;
+    tlRail.rotation.z = Math.PI;
+    tlRail.position.y = boardHeight;
+
+    tlCorner.add(tlBoard, tlKick, tlGlass, tlRail);
+    tlCorner.position.x = -rinkWidth/2 + cornerRadius;
+    tlCorner.position.z = -rinkDepth + cornerRadius;
+    boardGroup.add(tlCorner);
+
+    // Top Right Corner (Far Right)
+    const trCornerGeo = new THREE.CylinderGeometry(cornerRadius, cornerRadius, boardHeight, 32, 1, true, -Math.PI/2, Math.PI/2);
+    const trCornerKickGeo = new THREE.CylinderGeometry(cornerRadius - 5, cornerRadius - 5, 200, 32, 1, true, -Math.PI/2, Math.PI/2);
+    const trCornerGlassGeo = new THREE.CylinderGeometry(cornerRadius, cornerRadius, glassHeight, 32, 1, true, -Math.PI/2, Math.PI/2);
+
+    const trCorner = new THREE.Group();
+    const trBoard = new THREE.Mesh(trCornerGeo, boardMat);
+    trBoard.position.y = boardHeight/2;
+    const trKick = new THREE.Mesh(trCornerKickGeo, kickPlateMat);
+    trKick.position.y = 100;
+    const trGlass = new THREE.Mesh(trCornerGlassGeo, glassMat);
+    trGlass.position.y = boardHeight + glassHeight/2;
+    const trRail = new THREE.Mesh(cornerRailGeo, topRailMat);
+    trRail.rotation.x = Math.PI/2;
+    trRail.rotation.z = -Math.PI/2;
+    trRail.position.y = boardHeight;
+
+    trCorner.add(trBoard, trKick, trGlass, trRail);
+    trCorner.position.x = rinkWidth/2 - cornerRadius;
+    trCorner.position.z = -rinkDepth + cornerRadius;
+    boardGroup.add(trCorner);
 
     scene.add(boardGroup);
 
@@ -1899,7 +1959,7 @@
         stickGroup = new THREE.Group();
         stickGroup.rotation.y = 0.22;
         stickGroup.rotation.z = 0.40 + (20 * Math.PI / 180); // Tilt to the right so bottom blade sits flat on ice, + 20 extra degrees
-        stickGroup.position.y = 800;   // Initialize higher up for gravity test
+        stickGroup.position.set(0, 800, -20500);   // Initialize higher up for gravity test and position between hash marks
         stickGroup.add(root);
         scene.add(stickGroup);
 
@@ -1928,7 +1988,7 @@
     }
 
     function resetPuck() {
-      game.puck.position.set(95, 12.5, 76);
+      game.puck.position.set(95, 12.5, -20576);
       game.puckVelocity.set(0, 0, 0);
       game.puckState = 'idle';
 
@@ -2076,7 +2136,10 @@
            }
 
            // Out of bounds
-           if (game.puck.position.z < -6500 || Math.abs(game.puck.position.x) > 2500) {
+           if (game.puck.position.z < -30500 || Math.abs(game.puck.position.x) > 13000) {
+              resetPuck();
+           } else if (game.puckVelocity.lengthSq() < 1000 && game.puck.position.z < -20600) {
+              // Reset if the puck slows down significantly and is away from starting pos
               resetPuck();
            }
         }
