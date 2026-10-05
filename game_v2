@@ -635,10 +635,7 @@
       </div>
     </div>
 
-    <div id="swipeInstruction" style="position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); font-size: 16px; font-weight: bold; color: rgba(255,255,255,0.7); z-index: 10; pointer-events: none; text-align: center; background: rgba(0,0,0,0.5); padding: 12px 24px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);">
-      Swipe OMHOOG door de puck richting de goal!<br/>
-      <span style="font-size: 12px; color: #38bdf8;">Snelheid = Kracht | Rechte Lijn = Precisie</span>
-    </div>
+
 
     <!-- Swipe Zone Element -->
     <div id="swipeZone" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 25vh; z-index: 5; touch-action: none; background: linear-gradient(to top, rgba(56,189,248,0.1), transparent); border-top: 1px dashed rgba(56,189,248,0.3); pointer-events: auto; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 20px; font-weight: bold; color: rgba(56,189,248,0.5); font-size: 14px;">
@@ -1005,6 +1002,20 @@
       const toY = (z) => (30000 + z) * scale; // Note: texture maps from top to bottom
       const r = (radius) => radius * scale;
 
+      // Draw scratches
+      ctx.lineWidth = 2 * scale;
+      for (let i = 0; i < 5000; i++) {
+        ctx.beginPath();
+        const startX = Math.random() * canvas.width;
+        const startY = Math.random() * canvas.height;
+        const length = 50 * scale + Math.random() * 300 * scale;
+        const angle = Math.random() * Math.PI * 2;
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(startX + Math.cos(angle) * length, startY + Math.sin(angle) * length);
+        ctx.strokeStyle = `rgba(210, 220, 230, ${0.1 + Math.random() * 0.15})`;
+        ctx.stroke();
+      }
+
       // Center Line (z=0)
       ctx.strokeStyle = '#cf1f2e';
       ctx.lineWidth = 30 * scale;
@@ -1093,6 +1104,57 @@
     ghostPuck.material.depthWrite = false;
     ghostPuck.visible = false;
     scene.add(ghostPuck);
+
+
+    // Projected Arrow
+    function createArrowTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 2048;
+      const ctx = canvas.getContext('2d');
+
+      // Gradient from white (bottom) to transparent (top)
+      const grad = ctx.createLinearGradient(0, 2048, 0, 0);
+      grad.addColorStop(0, 'rgba(56, 189, 248, 0.8)');
+      grad.addColorStop(0.5, 'rgba(56, 189, 248, 0.4)');
+      grad.addColorStop(1, 'rgba(56, 189, 248, 0)');
+      ctx.fillStyle = grad;
+
+      // Draw arrow shape
+      ctx.beginPath();
+      // Base
+      ctx.moveTo(156, 2048);
+      ctx.lineTo(356, 2048);
+      // Shaft
+      ctx.lineTo(356, 500);
+      // Arrow head right
+      ctx.lineTo(512, 500);
+      // Arrow point
+      ctx.lineTo(256, 0);
+      // Arrow head left
+      ctx.lineTo(0, 500);
+      // Shaft
+      ctx.lineTo(156, 500);
+      ctx.closePath();
+      ctx.fill();
+
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.anisotropy = 16;
+      return tex;
+    }
+
+    const arrowGeo = new THREE.PlaneGeometry(1500, 8000);
+    const arrowMat = new THREE.MeshBasicMaterial({
+      map: createArrowTexture(),
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide
+    });
+    const projectedArrow = new THREE.Mesh(arrowGeo, arrowMat);
+    projectedArrow.rotation.x = -Math.PI / 2;
+    projectedArrow.position.set(0, 5, -22000);
+    scene.add(projectedArrow);
 
     // --- SETUP BOARDING ---
     const boardGroup = new THREE.Group();
@@ -1220,6 +1282,56 @@
     boardGroup.add(trCorner);
 
     scene.add(boardGroup);
+
+    // --- SETUP TRIBUNE ---
+    const tribuneGroup = new THREE.Group();
+    const concreteMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.9 });
+    const seatMat1 = new THREE.MeshStandardMaterial({ color: 0x0033a0, roughness: 0.7 });
+    const seatMat2 = new THREE.MeshStandardMaterial({ color: 0xcf1f2e, roughness: 0.7 });
+
+    const stepDepth = 900;
+    const stepHeight = 450;
+    const numRows = 12;
+    const startY = boardHeight + 200;
+    const startX = rinkWidth / 2 + 500;
+    const zOffset = -straightDepth / 2;
+
+    // Left Tribune
+    for (let i = 0; i < numRows; i++) {
+      // Concrete step
+      const step = new THREE.Mesh(new THREE.BoxGeometry(stepDepth, stepHeight, straightDepth), concreteMat);
+      step.position.set(-startX - (i * stepDepth), startY + (i * stepHeight), zOffset);
+      tribuneGroup.add(step);
+
+      // Continuous bench seat
+      const bench = new THREE.Mesh(new THREE.BoxGeometry(400, 100, straightDepth - 200), i % 2 === 0 ? seatMat1 : seatMat2);
+      bench.position.set(-startX - (i * stepDepth) + 150, startY + (i * stepHeight) + stepHeight/2 + 50, zOffset);
+      tribuneGroup.add(bench);
+    }
+
+    // Right Tribune
+    for (let i = 0; i < numRows; i++) {
+      const step = new THREE.Mesh(new THREE.BoxGeometry(stepDepth, stepHeight, straightDepth), concreteMat);
+      step.position.set(startX + (i * stepDepth), startY + (i * stepHeight), zOffset);
+      tribuneGroup.add(step);
+
+      const bench = new THREE.Mesh(new THREE.BoxGeometry(400, 100, straightDepth - 200), i % 2 === 0 ? seatMat1 : seatMat2);
+      bench.position.set(startX + (i * stepDepth) - 150, startY + (i * stepHeight) + stepHeight/2 + 50, zOffset);
+      tribuneGroup.add(bench);
+    }
+
+    // Far end Tribune
+    for (let i = 0; i < numRows; i++) {
+      const step = new THREE.Mesh(new THREE.BoxGeometry(straightWidth, stepHeight, stepDepth), concreteMat);
+      step.position.set(0, startY + (i * stepHeight), -rinkDepth - 500 - (i * stepDepth));
+      tribuneGroup.add(step);
+
+      const bench = new THREE.Mesh(new THREE.BoxGeometry(straightWidth - 200, 100, 400), i % 2 === 0 ? seatMat1 : seatMat2);
+      bench.position.set(0, startY + (i * stepHeight) + stepHeight/2 + 50, -rinkDepth - 500 - (i * stepDepth) - 150);
+      tribuneGroup.add(bench);
+    }
+
+    scene.add(tribuneGroup);
 
     // Net
     const netWidth = 1830;
@@ -1442,6 +1554,8 @@
            playDirection = 1;
            state.isPlaying = true;
            state.holdMaxBend = false;
+           game.replayFrames = [];
+           game.replayRecording = true;
            syncUiFromState();
        }
     });
@@ -2332,6 +2446,9 @@
     function updateGameScore() {
       document.getElementById('score-val').textContent = game.score;
       document.getElementById('shots-val').textContent = game.shots;
+      if (game.shots > 0 && projectedArrow.visible) {
+        projectedArrow.visible = false;
+      }
     }
 
     function captureReplayFrame() {
@@ -2515,8 +2632,7 @@
             game.puckVelocity.copy(shotDirection.multiplyScalar(speed));
             game.flightStart.copy(game.puck.position);
             game.flightDuration = game.flightStart.distanceTo(flightTarget) / speed;
-            game.replayFrames = [captureReplayFrame()];
-            game.replayRecording = true;
+
             game.shotElapsed = 0;
             game.shotWobbleOffset = 0;
             game.shotWobble = THREE.MathUtils.clamp(
@@ -2660,7 +2776,10 @@
         }
       }
 
-      if (game.replayRecording && (game.puckState === 'shot' || game.puckState === 'goal')) {
+      if (game.replayRecording) {
+        if (game.replayFrames.length > 400) {
+            game.replayFrames.shift();
+        }
         game.replayFrames.push(captureReplayFrame());
         document.getElementById('btnInstantReplay').disabled = true;
       }
