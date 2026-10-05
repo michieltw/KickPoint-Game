@@ -827,8 +827,6 @@
       { y: 0.66, x: 0.5 },
       { y: 1, x: 0.5 }
     ];
-    let stickVelocityY = 0;
-    let stickGravityPaused = false;
     const gameSettings = {
       shotSpeed: 1,
       swipeRange: 1,
@@ -1618,7 +1616,6 @@
           refZ_bg += Math.sin(thMid) * ds;
           refY_bg += Math.cos(thMid) * ds;
         }
-        const peakTheta_bg = peakRawTheta[i_bg] + peakTh;
 
         // Gradually remove curvature above the fulcrum while rotating the whole
         // shaft forward, so the blade supplies the extra rotation instead of a
@@ -2226,7 +2223,6 @@
     if (btnResetAll) {
       btnResetAll.addEventListener('click', () => {
         Object.assign(state, {"bottomGlovePos":50,"bottomGloveAmp":100,"bottomGloveTimeframe":250,"topHandAmp":100,"topHandTimeframe":250,"maxBendAngle":40,"topHandPullStartMs":600,"topHandPullDownMm":130,"followThroughAngle":35,"bladeWhipStrength":100,"timeline":500,"isPlaying":false,"holdMaxBend":true,"bendAxis":"forwards","anchorMode":"bow"});
-        stickGravityPaused = false;
         state.stiffnessCurve = DEFAULT_STIFFNESS_CURVE.map(point => ({ ...point }));
         refreshStiffnessCurveCache();
         drawStiffnessCurve();
@@ -2394,7 +2390,6 @@
       // Auto pause if it was playing
       if (state.isPlaying) {
          state.isPlaying = false;
-         stickGravityPaused = false;
          btnPlay.textContent = '▶ Speel';
          state.timeline = 0; // Reset stick
          updatePhysics();
@@ -2454,18 +2449,6 @@
       const now = performance.now();
       const delta = Math.min(0.05, (now - lastTime) / 1000);
       lastTime = now;
-
-      // Pause gravity just before the shaft first returns near straight, and keep it paused until the cycle returns to its start.
-      const stiffnessTimingScale = getStiffnessDynamics().timingScale;
-      const releasePeakTime = Math.max(540, Math.min(660, 600 * stiffnessTimingScale));
-      const releaseDuration = 400 * stiffnessTimingScale;
-      const gravityPauseStart = releasePeakTime + releaseDuration * 0.5;
-      if (state.isPlaying && !stickGravityPaused && playDirection > 0 && state.timeline >= gravityPauseStart) {
-        stickGravityPaused = true;
-      }
-      if (stickGravityPaused && state.isPlaying && state.timeline <= 5) {
-        stickGravityPaused = false;
-      }
 
       // The stick stays at its ice-aligned rest height; only shaft flex changes its shape.
       // Do not apply gravity to the parent group or re-align it from the changing flexed bounds.
