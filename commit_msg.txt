@@ -1,0 +1,6 @@
+Refactor unused variables and implement stick customizer
+
+- Remove unused dead code (stickVelocityY, stickGravityPaused, peakTheta_bg) without affecting gameplay mechanics.
+- Enhance visuals with projected fading arrow instructions, ice scratches, and a new tribune.
+- Overhaul replay buffer to keep 400 frames of full shot history including wind-up.
+- Introduce customizer feature supporting selection of stick curve, flex, paint color, kick point, finishes, and custom grip tape, with procedural bump and decal mapping rendering dynamically via canvas and applied onto the Three.js GLTF stick model material.
