@@ -2642,7 +2642,10 @@
 
           const upVector = new THREE.Vector3(0, 1, 0);
           let frontNormal = new THREE.Vector3().crossVectors(game.bladeContactAxis, upVector).normalize();
-          if (frontNormal.z > 0) frontNormal.negate();
+
+          if (frontNormal.z > 0) {
+              frontNormal.negate();
+          }
 
           const bladeClearance = 54;
           game.bladeContactOffset.copy(frontNormal).multiplyScalar(bladeClearance);
