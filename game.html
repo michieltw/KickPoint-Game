@@ -95,6 +95,10 @@
       color: #38bdf8;
       border-color: #38bdf8;
     }
+    .btn-action:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
 
     /* Live Ticker Bar */
     .ticker-bar {
@@ -415,6 +419,90 @@
       display: block;
     }
 
+    /* Gameplay settings menu */
+    #game-settings {
+      position: absolute;
+      inset: 0;
+      z-index: 45;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(2, 6, 23, 0.94);
+      backdrop-filter: blur(10px);
+    }
+    #game-settings.visible { display: flex; }
+    .game-settings-card {
+      width: min(540px, 100%);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      padding: 24px;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.96);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+    }
+    .game-settings-card h2 {
+      margin-bottom: 6px;
+      color: #38bdf8;
+      font-size: 20px;
+    }
+    .game-settings-card > p {
+      margin-bottom: 18px;
+      color: #94a3b8;
+      font-size: 12px;
+    }
+    .game-setting-row { margin: 14px 0; }
+    .game-setting-row label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+      color: #cbd5e1;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .game-setting-row output {
+      color: #38bdf8;
+      font-family: monospace;
+    }
+    .game-setting-row input { width: 100%; accent-color: #38bdf8; }
+    .game-settings-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+
+    /* Replay controls */
+    #replay-controls {
+      position: absolute;
+      top: 112px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 35;
+      display: none;
+      width: min(760px, calc(100vw - 32px));
+      padding: 10px 12px;
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.94);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(14px);
+    }
+    #replay-controls.visible { display: block; }
+    .replay-toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; }
+    .replay-toolbar button, .replay-toolbar select {
+      border: 1px solid #334155;
+      border-radius: 7px;
+      background: #020617;
+      color: #e2e8f0;
+      padding: 5px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .replay-toolbar button:hover, .replay-toolbar select:hover { border-color: #38bdf8; }
+    .replay-toggle { display: flex; align-items: center; gap: 4px; color: #cbd5e1; font-size: 11px; }
+    .replay-toggle input { accent-color: #38bdf8; }
+    #replayTimeline { flex: 1 1 180px; min-width: 140px; accent-color: #38bdf8; }
+    #replayFrameLabel { min-width: 72px; color: #38bdf8; font: 11px monospace; text-align: right; }
+
     /* Loading overlay */
     #loading-overlay {
       position: absolute;
@@ -465,6 +553,42 @@
     <button class="menu-btn secondary" id="btnSettings">Settings</button>
   </div>
 
+  <section id="game-settings" aria-label="Spelinstellingen">
+    <div class="game-settings-card">
+      <h2>Spelinstellingen</h2>
+      <p>De sliders regelen de basis-schotsnelheid, hoeveel sleepsnelheid die verandert, en hoe kickpoint en swipeprecisie doorwerken.</p>
+      <div class="game-setting-row">
+        <label for="settingShotSpeed">Schotsnelheid <output id="settingShotSpeedValue">100%</output></label>
+        <input id="settingShotSpeed" type="range" min="50" max="180" step="5" value="100">
+      </div>
+      <div class="game-setting-row">
+        <label for="settingSwipeRange">Invloed sleepsnelheid op schot <output id="settingSwipeRangeValue">100%</output></label>
+        <input id="settingSwipeRange" type="range" min="50" max="200" step="5" value="100">
+      </div>
+      <div class="game-setting-row">
+        <label for="settingKickpointEffect">Effect van kickpoint <output id="settingKickpointEffectValue">100%</output></label>
+        <input id="settingKickpointEffect" type="range" min="0" max="200" step="5" value="100">
+      </div>
+      <div class="game-setting-row">
+        <label for="settingMinSwipeSpeed">Minimale sleepsnelheid <output id="settingMinSwipeSpeedValue">0,3 px/ms</output></label>
+        <input id="settingMinSwipeSpeed" type="range" min="0.1" max="1.5" step="0.1" value="0.3">
+      </div>
+      <div class="game-setting-row">
+        <label for="settingPrecisionTolerance">Swipeprecisie-tolerantie <output id="settingPrecisionToleranceValue">12 px</output></label>
+        <input id="settingPrecisionTolerance" type="range" min="0" max="60" step="2" value="12">
+      </div>
+      <div class="game-setting-row">
+        <label for="settingDeviationPenalty">Straf voor afwijking <output id="settingDeviationPenaltyValue">100%</output></label>
+        <input id="settingDeviationPenalty" type="range" min="25" max="250" step="5" value="100">
+      </div>
+      <div class="game-settings-actions">
+        <button class="menu-btn" id="btnSettingsPlay" style="margin:0; width:auto; padding:10px 20px; font-size:14px;">Terug naar spel</button>
+        <button class="menu-btn secondary" id="btnPhysicsSettings" style="margin:0; width:auto; padding:10px 20px; font-size:14px;">Stick &amp; physics</button>
+        <button class="menu-btn secondary" id="btnGameSettingsBack" style="margin:0; width:auto; padding:10px 20px; font-size:14px;">Hoofdmenu</button>
+      </div>
+    </div>
+  </section>
+
   <div id="canvas-container"></div>
 
   <div id="game-ui">
@@ -479,6 +603,9 @@
         <button class="btn-action" id="btnMenu" title="Hoofdmenu">
           ☰ Menu
         </button>
+        <button class="btn-action" id="btnInstantReplay" title="Speel het laatste schot opnieuw" disabled>
+          ⟲ Replay
+        </button>
         <button class="btn-action" id="btnResetAll" title="Herstel standaardwaarden">
           ↺ Reset
         </button>
@@ -490,10 +617,25 @@
       <div>Shots: <span id="shots-val">0</span></div>
     </div>
 
-    <div id="swipeInstruction" style="position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); font-size: 16px; font-weight: bold; color: rgba(255,255,255,0.7); z-index: 10; pointer-events: none; text-align: center; background: rgba(0,0,0,0.5); padding: 12px 24px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);">
-      Swipe OMHOOG door de puck richting de goal!<br/>
-      <span style="font-size: 12px; color: #38bdf8;">Snelheid = Kracht | Rechte Lijn = Precisie</span>
+    <div id="replay-controls" aria-label="Replay bediening">
+      <div class="replay-toolbar">
+        <button id="replayRewind" title="Terugspoelen">◀◀ Terug</button>
+        <button id="replayStepBack" title="Eén frame terug">◀ Frame</button>
+        <button id="replayPlayPause">❚❚ Pauze</button>
+        <button id="replayStepForward" title="Eén frame vooruit">Frame ▶</button>
+        <label class="replay-toggle"><input id="ghostStickToggle" type="checkbox" checked> Ghost stick</label>
+        <label class="replay-toggle"><input id="ghostPuckToggle" type="checkbox" checked> Ghost puck</label>
+        <label for="replaySpeed" class="replay-toggle">Snelheid</label>
+        <select id="replaySpeed" aria-label="Replay snelheid">
+          <option value="0.25">0,25×</option><option value="0.5">0,5×</option>
+          <option value="1" selected>1×</option><option value="2">2×</option>
+        </select>
+        <input id="replayTimeline" type="range" min="0" max="0" step="0.1" value="0" aria-label="Handmatige replaypositie">
+        <span id="replayFrameLabel">0 / 0</span>
+      </div>
     </div>
+
+
 
     <!-- Swipe Zone Element -->
     <div id="swipeZone" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 25vh; z-index: 5; touch-action: none; background: linear-gradient(to top, rgba(56,189,248,0.1), transparent); border-top: 1px dashed rgba(56,189,248,0.3); pointer-events: auto; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 20px; font-weight: bold; color: rgba(56,189,248,0.5); font-size: 14px;">
@@ -682,28 +824,44 @@
       { y: 0.66, x: 0.5 },
       { y: 1, x: 0.5 }
     ];
-    let stickVelocityY = 0;
-    const appState = { mode: 'menu' }; // 'menu', 'game', 'settings'
+    const gameSettings = {
+      shotSpeed: 1,
+      swipeRange: 1,
+      kickpointEffect: 1,
+      minSwipeSpeed: 0.3,
+      precisionTolerance: 12,
+      deviationPenalty: 1
+    };
+    const appState = { mode: 'menu' }; // 'menu', 'game', 'gameSettings', 'settings'
     const state = {"bottomGlovePos":50,"bottomGloveAmp":100,"bottomGloveTimeframe":250,"topHandAmp":100,"topHandTimeframe":250,"maxBendAngle":45,"topHandPullStartMs":600,"topHandPullDownMm":100,"followThroughAngle":50,"bladeWhipStrength":100,"timeline":600,"isPlaying":false,"holdMaxBend":false,"bendAxis":"forwards","anchorMode":"bow","stiffnessCurve":DEFAULT_STIFFNESS_CURVE.map(point => ({ ...point }))};
 
     function updateUiMode() {
       const menu = document.getElementById('main-menu');
       const gameUi = document.getElementById('game-ui');
       const settings = document.getElementById('workbenchPanel');
+      const gameSettingsMenu = document.getElementById('game-settings');
       const btnPlayNow = document.getElementById('btnPlayNow');
 
       if (appState.mode === 'menu') {
         menu.classList.remove('hidden');
         gameUi.classList.remove('visible');
         settings.style.display = 'none';
+        gameSettingsMenu.classList.remove('visible');
         btnPlayNow.textContent = game && game.shots > 0 ? 'Resume Game' : 'Play Now';
       } else if (appState.mode === 'game') {
         menu.classList.add('hidden');
         gameUi.classList.add('visible');
         settings.style.display = 'none';
+        gameSettingsMenu.classList.remove('visible');
+      } else if (appState.mode === 'gameSettings') {
+        menu.classList.add('hidden');
+        gameUi.classList.remove('visible');
+        settings.style.display = 'none';
+        gameSettingsMenu.classList.add('visible');
       } else if (appState.mode === 'settings') {
         menu.classList.add('hidden');
         gameUi.classList.remove('visible');
+        gameSettingsMenu.classList.remove('visible');
         settings.style.display = 'flex';
         settings.classList.remove('collapsed');
       }
@@ -715,7 +873,19 @@
           updateUiMode();
         });
         document.getElementById('btnSettings').addEventListener('click', () => {
+          appState.mode = 'gameSettings';
+          updateUiMode();
+        });
+        document.getElementById('btnSettingsPlay').addEventListener('click', () => {
+          appState.mode = 'game';
+          updateUiMode();
+        });
+        document.getElementById('btnPhysicsSettings').addEventListener('click', () => {
           appState.mode = 'settings';
+          updateUiMode();
+        });
+        document.getElementById('btnGameSettingsBack').addEventListener('click', () => {
+          appState.mode = 'menu';
           updateUiMode();
         });
         document.getElementById('btnMenu').addEventListener('click', () => {
@@ -724,8 +894,27 @@
         });
         document.getElementById('btnSettingsBack').addEventListener('click', (e) => {
           e.stopPropagation(); // Prevent panel collapse
-          appState.mode = 'menu';
+          appState.mode = 'gameSettings';
           updateUiMode();
+        });
+
+        const settingBindings = [
+          ['settingShotSpeed', 'settingShotSpeedValue', 'shotSpeed', value => `${value}%`, value => value / 100],
+          ['settingSwipeRange', 'settingSwipeRangeValue', 'swipeRange', value => `${value}%`, value => value / 100],
+          ['settingKickpointEffect', 'settingKickpointEffectValue', 'kickpointEffect', value => `${value}%`, value => value / 100],
+          ['settingMinSwipeSpeed', 'settingMinSwipeSpeedValue', 'minSwipeSpeed', value => `${Number(value).toLocaleString('nl-NL', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} px/ms`, value => Number(value)],
+          ['settingPrecisionTolerance', 'settingPrecisionToleranceValue', 'precisionTolerance', value => `${value} px`, value => Number(value)],
+          ['settingDeviationPenalty', 'settingDeviationPenaltyValue', 'deviationPenalty', value => `${value}%`, value => value / 100]
+        ];
+        settingBindings.forEach(([inputId, outputId, key, format, parse]) => {
+          const input = document.getElementById(inputId);
+          const output = document.getElementById(outputId);
+          input.addEventListener('input', () => {
+            gameSettings[key] = parse(input.value);
+            output.textContent = format(input.value);
+            if (key === 'kickpointEffect') cachedStiffnessDynamics = null;
+            updatePhysics();
+          });
         });
         updateUiMode();
     });
@@ -779,7 +968,31 @@
       puckVelocity: new THREE.Vector3(0, 0, 0),
       net: null,
       ice: null,
-      puckState: 'idle' // idle, shot, goal
+      puckState: 'idle', // idle, attached, shot, goal
+      shotAim: null,
+      contactTime: 0,
+      releaseTime: 0,
+      shotElapsed: 0,
+      shotWobble: 0,
+      shotWobbleOffset: 0,
+      shotDeviationX: 0,
+      flightStart: new THREE.Vector3(),
+      flightDuration: 0,
+      bladeTipSpeed: 0,
+      lastBladeTipPosition: null,
+      bladeVelocity: new THREE.Vector3(),
+      bladeForwardSpeed: 0,
+      peakBladeForwardSpeed: 0,
+      bladeDecelerationFrames: 0,
+      lastBladeCenterPosition: null,
+      replayFrames: [],
+      replayRecording: false,
+      replayPlayback: null,
+      bladeHeelIndex: -1,
+      bladeTipIndex: -1,
+      bladeContactProgress: 0,
+      bladeContactOffset: new THREE.Vector3(),
+      bladeContactAxis: new THREE.Vector3(1, 0, 0)
     };
 
     // Ice
@@ -796,6 +1009,20 @@
       const toX = (x) => (x + 13000) * scale;
       const toY = (z) => (30000 + z) * scale; // Note: texture maps from top to bottom
       const r = (radius) => radius * scale;
+
+      // Draw scratches
+      ctx.lineWidth = 2 * scale;
+      for (let i = 0; i < 5000; i++) {
+        ctx.beginPath();
+        const startX = Math.random() * canvas.width;
+        const startY = Math.random() * canvas.height;
+        const length = 50 * scale + Math.random() * 300 * scale;
+        const angle = Math.random() * Math.PI * 2;
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(startX + Math.cos(angle) * length, startY + Math.sin(angle) * length);
+        ctx.strokeStyle = `rgba(210, 220, 230, ${0.1 + Math.random() * 0.15})`;
+        ctx.stroke();
+      }
 
       // Center Line (z=0)
       ctx.strokeStyle = '#cf1f2e';
@@ -876,8 +1103,66 @@
     const puckMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.8 });
     game.puck = new THREE.Mesh(puckGeo, puckMat);
     // Position puck near where the blade normally ends up, between the hash marks and slightly further away
-    game.puck.position.set(95, 12.5, -20576);
+    game.puck.position.set(95, 12.5, -20120);
     scene.add(game.puck);
+    const ghostPuck = game.puck.clone();
+    ghostPuck.material = game.puck.material.clone();
+    ghostPuck.material.transparent = true;
+    ghostPuck.material.opacity = 0.38;
+    ghostPuck.material.depthWrite = false;
+    ghostPuck.visible = false;
+    scene.add(ghostPuck);
+
+
+    // Projected Arrow
+    function createArrowTexture() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 2048;
+      const ctx = canvas.getContext('2d');
+
+      // Gradient from white (bottom) to transparent (top)
+      const grad = ctx.createLinearGradient(0, 2048, 0, 0);
+      grad.addColorStop(0, 'rgba(56, 189, 248, 0.8)');
+      grad.addColorStop(0.5, 'rgba(56, 189, 248, 0.4)');
+      grad.addColorStop(1, 'rgba(56, 189, 248, 0)');
+      ctx.fillStyle = grad;
+
+      // Draw arrow shape
+      ctx.beginPath();
+      // Base
+      ctx.moveTo(156, 2048);
+      ctx.lineTo(356, 2048);
+      // Shaft
+      ctx.lineTo(356, 500);
+      // Arrow head right
+      ctx.lineTo(512, 500);
+      // Arrow point
+      ctx.lineTo(256, 0);
+      // Arrow head left
+      ctx.lineTo(0, 500);
+      // Shaft
+      ctx.lineTo(156, 500);
+      ctx.closePath();
+      ctx.fill();
+
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.anisotropy = 16;
+      return tex;
+    }
+
+    const arrowGeo = new THREE.PlaneGeometry(1500, 8000);
+    const arrowMat = new THREE.MeshBasicMaterial({
+      map: createArrowTexture(),
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide
+    });
+    const projectedArrow = new THREE.Mesh(arrowGeo, arrowMat);
+    projectedArrow.rotation.x = -Math.PI / 2;
+    projectedArrow.position.set(0, 5, -22000);
+    scene.add(projectedArrow);
 
     // --- SETUP BOARDING ---
     const boardGroup = new THREE.Group();
@@ -973,7 +1258,7 @@
     const tlGlass = new THREE.Mesh(cornerGlassGeo, glassMat);
     tlGlass.position.y = boardHeight + glassHeight/2;
     const tlRail = new THREE.Mesh(cornerRailGeo, topRailMat);
-    tlRail.rotation.x = Math.PI/2;
+    tlRail.rotation.x = -Math.PI/2;
     tlRail.rotation.z = Math.PI;
     tlRail.position.y = boardHeight;
 
@@ -983,9 +1268,9 @@
     boardGroup.add(tlCorner);
 
     // Top Right Corner (Far Right)
-    const trCornerGeo = new THREE.CylinderGeometry(cornerRadius, cornerRadius, boardHeight, 32, 1, true, -Math.PI/2, Math.PI/2);
-    const trCornerKickGeo = new THREE.CylinderGeometry(cornerRadius - 5, cornerRadius - 5, 200, 32, 1, true, -Math.PI/2, Math.PI/2);
-    const trCornerGlassGeo = new THREE.CylinderGeometry(cornerRadius, cornerRadius, glassHeight, 32, 1, true, -Math.PI/2, Math.PI/2);
+    const trCornerGeo = new THREE.CylinderGeometry(cornerRadius, cornerRadius, boardHeight, 32, 1, true, Math.PI/2, Math.PI/2);
+    const trCornerKickGeo = new THREE.CylinderGeometry(cornerRadius - 5, cornerRadius - 5, 200, 32, 1, true, Math.PI/2, Math.PI/2);
+    const trCornerGlassGeo = new THREE.CylinderGeometry(cornerRadius, cornerRadius, glassHeight, 32, 1, true, Math.PI/2, Math.PI/2);
 
     const trCorner = new THREE.Group();
     const trBoard = new THREE.Mesh(trCornerGeo, boardMat);
@@ -995,8 +1280,8 @@
     const trGlass = new THREE.Mesh(trCornerGlassGeo, glassMat);
     trGlass.position.y = boardHeight + glassHeight/2;
     const trRail = new THREE.Mesh(cornerRailGeo, topRailMat);
-    trRail.rotation.x = Math.PI/2;
-    trRail.rotation.z = -Math.PI/2;
+    trRail.rotation.x = -Math.PI/2;
+    trRail.rotation.z = 0;
     trRail.position.y = boardHeight;
 
     trCorner.add(trBoard, trKick, trGlass, trRail);
@@ -1005,6 +1290,56 @@
     boardGroup.add(trCorner);
 
     scene.add(boardGroup);
+
+    // --- SETUP TRIBUNE ---
+    const tribuneGroup = new THREE.Group();
+    const concreteMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.9 });
+    const seatMat1 = new THREE.MeshStandardMaterial({ color: 0x0033a0, roughness: 0.7 });
+    const seatMat2 = new THREE.MeshStandardMaterial({ color: 0xcf1f2e, roughness: 0.7 });
+
+    const stepDepth = 900;
+    const stepHeight = 450;
+    const numRows = 12;
+    const startY = boardHeight + 200;
+    const startX = rinkWidth / 2 + 500;
+    const zOffset = -straightDepth / 2;
+
+    // Left Tribune
+    for (let i = 0; i < numRows; i++) {
+      // Concrete step
+      const step = new THREE.Mesh(new THREE.BoxGeometry(stepDepth, stepHeight, straightDepth), concreteMat);
+      step.position.set(-startX - (i * stepDepth), startY + (i * stepHeight), zOffset);
+      tribuneGroup.add(step);
+
+      // Continuous bench seat
+      const bench = new THREE.Mesh(new THREE.BoxGeometry(400, 100, straightDepth - 200), i % 2 === 0 ? seatMat1 : seatMat2);
+      bench.position.set(-startX - (i * stepDepth) + 150, startY + (i * stepHeight) + stepHeight/2 + 50, zOffset);
+      tribuneGroup.add(bench);
+    }
+
+    // Right Tribune
+    for (let i = 0; i < numRows; i++) {
+      const step = new THREE.Mesh(new THREE.BoxGeometry(stepDepth, stepHeight, straightDepth), concreteMat);
+      step.position.set(startX + (i * stepDepth), startY + (i * stepHeight), zOffset);
+      tribuneGroup.add(step);
+
+      const bench = new THREE.Mesh(new THREE.BoxGeometry(400, 100, straightDepth - 200), i % 2 === 0 ? seatMat1 : seatMat2);
+      bench.position.set(startX + (i * stepDepth) - 150, startY + (i * stepHeight) + stepHeight/2 + 50, zOffset);
+      tribuneGroup.add(bench);
+    }
+
+    // Far end Tribune
+    for (let i = 0; i < numRows; i++) {
+      const step = new THREE.Mesh(new THREE.BoxGeometry(straightWidth, stepHeight, stepDepth), concreteMat);
+      step.position.set(0, startY + (i * stepHeight), -rinkDepth - 500 - (i * stepDepth));
+      tribuneGroup.add(step);
+
+      const bench = new THREE.Mesh(new THREE.BoxGeometry(straightWidth - 200, 100, 400), i % 2 === 0 ? seatMat1 : seatMat2);
+      bench.position.set(0, startY + (i * stepHeight) + stepHeight/2 + 50, -rinkDepth - 500 - (i * stepDepth) - 150);
+      tribuneGroup.add(bench);
+    }
+
+    scene.add(tribuneGroup);
 
     // Net
     const netWidth = 1830;
@@ -1109,7 +1444,8 @@
        endX: 0,
        endTime: 0,
        power: 0, // speed
-       accuracy: 0, // deviation in X
+       accuracy: 0, // swipe-path error
+       path: [],
        triggered: false
     };
 
@@ -1123,22 +1459,45 @@
        swipeData.startTime = performance.now();
        swipeData.triggered = false;
        swipeData.puckHitTime = 0;
+       swipeData.path = [{ x: e.clientX, y: e.clientY }];
 
        // Disable OrbitControls during swipe so camera doesn't move while shooting
        controls.enabled = false;
        e.stopPropagation();
     });
 
-    container.addEventListener('pointermove', (e) => {
+    window.addEventListener('pointermove', (e) => {
        if (!swipeData.isSwiping) return;
-       // Assuming puck is around 3/4 down the screen
+       swipeData.path.push({ x: e.clientX, y: e.clientY });
+       // Estimate when the swipe crosses the puck's screen position.
        const puckScreenY = window.innerHeight * 0.75;
-
        if (swipeData.startY > puckScreenY && e.clientY <= puckScreenY && swipeData.puckHitTime === 0) {
            swipeData.puckHitY = e.clientY;
            swipeData.puckHitTime = performance.now();
        }
     });
+
+    function getGoalAim(clientX, clientY, pathErrorX = 0) {
+       const aimX = clientX + pathErrorX * 1.5;
+       const ndc = new THREE.Vector2(
+         (aimX / window.innerWidth) * 2 - 1,
+         -(clientY / window.innerHeight) * 2 + 1
+       );
+       const raycaster = new THREE.Raycaster();
+       raycaster.setFromCamera(ndc, camera);
+       const goalPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -game.net.position.z);
+       const hit = new THREE.Vector3();
+       const fallbackX = ((aimX / window.innerWidth) - 0.5) * netWidth;
+       const fallbackY = (1 - clientY / window.innerHeight) * netHeight;
+       const point = raycaster.ray.intersectPlane(goalPlane, hit)
+         ? hit
+         : new THREE.Vector3(fallbackX, fallbackY, game.net.position.z);
+       return new THREE.Vector3(
+         THREE.MathUtils.clamp(point.x, -netWidth / 2 - 500, netWidth / 2 + 500),
+         THREE.MathUtils.clamp(point.y, 25, netHeight + 400),
+         game.net.position.z
+       );
+    }
 
     window.addEventListener('pointerup', (e) => {
        if (!swipeData.isSwiping) {
@@ -1160,25 +1519,51 @@
            // Distance to puck
            let distToPuck = swipeData.puckHitY > 0 ? (swipeData.startY - swipeData.puckHitY) : (swipeData.startY - swipeData.endY) / 2;
 
-           // Speed = dist / time. Faster = more power.
-           let speed = distToPuck / timeToPuck;
-           // Normalize speed (e.g. 0.5 to 5.0) to 10-100%
-           swipeData.power = Math.max(10, Math.min(100, speed * 20));
+           // Speed = distance / time. Give a normal fast swipe enough range to load the shaft fully.
+           const speed = distToPuck / timeToPuck;
+           if (speed < gameSettings.minSwipeSpeed) return;
+           swipeData.power = Math.max(20, Math.min(100, speed * 52 * gameSettings.swipeRange));
 
-           // Accuracy based on straightness
-           // Deviation in X from start to end
-           let devX = swipeData.endX - swipeData.startX;
-           // Screen width percentage
-           swipeData.accuracy = (devX / window.innerWidth); // -0.5 to +0.5
+           // The swipe endpoint sets the aim; sideways bow in the path adds a small accuracy error.
+           let maxPathErrorX = 0;
+           let maxPathErrorMagnitude = 0;
+           const swipeHeight = swipeData.startY - swipeData.endY;
+           for (const point of swipeData.path) {
+             const progress = swipeHeight ? Math.max(0, Math.min(1,
+               (swipeData.startY - point.y) / swipeHeight)) : 0;
+             const expectedX = swipeData.startX +
+               (swipeData.endX - swipeData.startX) * progress;
+             const errorX = point.x - expectedX;
+             if (Math.abs(errorX) > maxPathErrorMagnitude) {
+               maxPathErrorMagnitude = Math.abs(errorX);
+               maxPathErrorX = errorX;
+             }
+           }
+           const effectivePathError = Math.max(0, maxPathErrorMagnitude - gameSettings.precisionTolerance);
+           const signedPathError = Math.sign(maxPathErrorX) * effectivePathError;
+           swipeData.accuracy = signedPathError / window.innerWidth;
+           game.shotAim = getGoalAim(swipeData.endX, swipeData.endY);
+           game.shotDeviationX = THREE.MathUtils.clamp(
+             (signedPathError / window.innerWidth) * netWidth * 0.75 * gameSettings.deviationPenalty,
+             -netWidth * 0.35,
+             netWidth * 0.35
+           );
+           const stiffnessDynamics = getStiffnessDynamics();
+           game.contactTime = Math.max(540, Math.min(660, 600 * stiffnessDynamics.timingScale));
+           // Keep the puck on the loaded blade through the start of the snap, then release just before it straightens.
+           game.releaseTime = game.contactTime + 180 * stiffnessDynamics.timingScale;
 
-           // Apply to stick physics state
-           state.bottomGloveAmp = swipeData.power;
-           state.topHandAmp = swipeData.power;
+           // Keep the same stick-force settings used by playback in Settings.
+           // Swipe speed modifies the puck launch, not the stick's animation profile.
 
-           // Trigger shot
+           // Start a fresh stick cycle; the swipe endpoint is retained as the shot aim.
            swipeData.triggered = true;
+           state.timeline = 0;
+           playDirection = 1;
            state.isPlaying = true;
            state.holdMaxBend = false;
+           game.replayFrames = [];
+           game.replayRecording = true;
            syncUiFromState();
        }
     });
@@ -1197,6 +1582,9 @@
 
     let stickMesh = null;
     let stickGroup = null;
+    let ghostStickGroup = null;
+    let ghostStickMesh = null;
+    let stickRestY = 0;
     let originalPositions = null;
     let vertexRows = null;
     let sortedStiffnessCurve = [...state.stiffnessCurve].sort((a, b) => a.y - b.y);
@@ -1251,7 +1639,7 @@
         ? softZoneCenters.reduce((sum, position) => sum + position, 0) / softZoneCenters.length
         : 0.5;
       const stiffnessBias = ((average - 87.5) / 37.5) * 0.08;
-      const kickPositionBias = (kickPosition - 0.5) * 0.12;
+      const kickPositionBias = (kickPosition - 0.5) * 0.12 * gameSettings.kickpointEffect;
       const timingScale = Math.max(0.84, Math.min(1.16, 1 + stiffnessBias + kickPositionBias));
 
       // Update power scale logic per request: higher kickpoint (lower kickPosition y, higher kickPositionBias) = more power, but slower release.
@@ -1350,7 +1738,6 @@
           refZ_bg += Math.sin(thMid) * ds;
           refY_bg += Math.cos(thMid) * ds;
         }
-        const peakTheta_bg = peakRawTheta[i_bg] + peakTh;
 
         // Gradually remove curvature above the fulcrum while rotating the whole
         // shaft forward, so the blade supplies the extra rotation instead of a
@@ -1607,18 +1994,93 @@
         stickMesh.geometry.computeBoundingBox();
         stickMesh.geometry.computeBoundingSphere();
 
+        // Keep the deformed blade from passing below the ice, then return to rest height.
+        stickGroup.position.y = stickRestY;
+        stickGroup.updateMatrixWorld(true);
+        const deformedBox = new THREE.Box3().setFromObject(stickGroup, true);
+        const floorLift = Math.max(0, -deformedBox.min.y);
+        stickGroup.position.y += floorLift;
+
         // Update Markers
         const y_bg = (state.bottomGlovePos / 100) * L_total;
         const d_bg = sampleDeformation(y_bg, profile);
-        bgMarker.position.set(X_center, y_bg + d_bg.dy, Z_center + d_bg.dz);
+        bgMarker.position.set(X_center, y_bg + d_bg.dy + floorLift, Z_center + d_bg.dz);
         bgMarker.rotation.set(-d_bg.theta, 0, 0);
 
         const y_th = L_total;
         const d_th = sampleDeformation(y_th, profile);
-        thMarker.position.set(X_center, y_th + d_th.dy, Z_center + d_th.dz);
+        thMarker.position.set(X_center, y_th + d_th.dy + floorLift, Z_center + d_th.dz);
         thMarker.rotation.set(-d_th.theta, 0, 0);
       }
 
+    }
+
+    function initializeBladePath() {
+      if (!stickMesh || !originalPositions) return;
+      const puckStart = new THREE.Vector3(95, 12.5, -20120);
+      const position = stickMesh.geometry.attributes.position.array;
+      let nearestDistance = Infinity;
+      let heelIndex = -1;
+      const bladeIndices = [];
+
+      for (let i = 0; i < originalPositions.length; i += 3) {
+        if (originalPositions[i + 1] >= 0) continue;
+        bladeIndices.push(i);
+        const worldPoint = stickMesh.localToWorld(
+          new THREE.Vector3(position[i], position[i + 1], position[i + 2])
+        );
+        const distance = worldPoint.distanceToSquared(puckStart);
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          heelIndex = i;
+        }
+      }
+
+      if (heelIndex < 0) return;
+      const heel = stickMesh.localToWorld(
+        new THREE.Vector3(position[heelIndex], position[heelIndex + 1], position[heelIndex + 2])
+      );
+      let farthestDistance = -1;
+      let tipIndex = heelIndex;
+      for (const i of bladeIndices) {
+        const point = stickMesh.localToWorld(
+          new THREE.Vector3(position[i], position[i + 1], position[i + 2])
+        );
+        const distance = point.distanceToSquared(heel);
+        if (distance > farthestDistance) {
+          farthestDistance = distance;
+          tipIndex = i;
+        }
+      }
+      game.bladeHeelIndex = heelIndex;
+      game.bladeTipIndex = tipIndex;
+    }
+
+    function getBladePoint(vertexIndex) {
+      const position = stickMesh.geometry.attributes.position.array;
+      return stickMesh.localToWorld(
+        new THREE.Vector3(position[vertexIndex], position[vertexIndex + 1], position[vertexIndex + 2])
+      );
+    }
+
+    function getBladeContactProgress() {
+      if (game.bladeHeelIndex < 0 || game.bladeTipIndex < 0) return null;
+      const heel = getBladePoint(game.bladeHeelIndex);
+      const tip = getBladePoint(game.bladeTipIndex);
+      const bladeAxis = tip.clone().sub(heel);
+      const lengthSq = bladeAxis.lengthSq();
+      if (lengthSq === 0) return null;
+
+      const progress = THREE.MathUtils.clamp(
+        game.puck.position.clone().sub(heel).dot(bladeAxis) / lengthSq,
+        0,
+        1
+      );
+      const closestPoint = heel.addScaledVector(bladeAxis, progress);
+      const contactDistance = 250; // Increased to ensure the blade reliably catches the puck even during fast animation steps
+      return closestPoint.distanceToSquared(game.puck.position) <= contactDistance ** 2
+        ? progress
+        : null;
     }
 
     // Connect UI Elements
@@ -1959,9 +2421,35 @@
         stickGroup = new THREE.Group();
         stickGroup.rotation.y = 0.22;
         stickGroup.rotation.z = 0.40 + (20 * Math.PI / 180); // Tilt to the right so bottom blade sits flat on ice, + 20 extra degrees
-        stickGroup.position.set(0, 800, -20500);   // Initialize higher up for gravity test and position between hash marks
+        stickGroup.position.set(0, 0, -20500);   // Place the stick at ice level between the hash marks
+
+        // Rotate clockwise from above while keeping the top-hand point fixed.
+        const topHandLocal = new THREE.Vector3(X_center, L_total, Z_center);
+        const topHandWorld = topHandLocal.clone().applyQuaternion(stickGroup.quaternion).add(stickGroup.position);
+        stickGroup.rotation.y -= THREE.MathUtils.degToRad(25);
+        const rotatedTopHand = topHandLocal.clone().applyQuaternion(stickGroup.quaternion);
+        stickGroup.position.x = topHandWorld.x - rotatedTopHand.x;
+        stickGroup.position.z = topHandWorld.z - rotatedTopHand.z;
+
         stickGroup.add(root);
         scene.add(stickGroup);
+        ghostStickGroup = stickGroup.clone(true);
+        ghostStickGroup.visible = false;
+        ghostStickGroup.traverse(child => {
+          if (child.isMesh) {
+            child.geometry = child.geometry.clone();
+            child.material = child.material.clone();
+            child.material.transparent = true;
+            child.material.opacity = 0.32;
+            child.material.depthWrite = false;
+            if (!ghostStickMesh) ghostStickMesh = child;
+          }
+        });
+        scene.add(ghostStickGroup);
+        stickGroup.updateMatrixWorld(true);
+        const initialStickBox = new THREE.Box3().setFromObject(stickGroup, true);
+        stickGroup.position.y -= initialStickBox.min.y;
+        stickRestY = stickGroup.position.y;
 
         const overlay = document.getElementById('loading-overlay');
         if (overlay) {
@@ -1971,6 +2459,7 @@
 
         syncUiFromState();
         updatePhysics();
+        initializeBladePath();
       },
       undefined,
       (err) => {
@@ -1985,12 +2474,69 @@
     function updateGameScore() {
       document.getElementById('score-val').textContent = game.score;
       document.getElementById('shots-val').textContent = game.shots;
+      if (game.shots > 0 && projectedArrow.visible) {
+        projectedArrow.visible = false;
+      }
+    }
+
+    function captureReplayFrame() {
+      const frame = { position: game.puck.position.clone(), rotation: game.puck.rotation.clone() };
+      if (stickMesh && stickGroup) {
+        frame.stickPositions = new Float32Array(stickMesh.geometry.attributes.position.array);
+        frame.stickGroupPosition = stickGroup.position.clone();
+        frame.stickGroupQuaternion = stickGroup.quaternion.clone();
+      }
+      return frame;
+    }
+
+    let replayPaused = false;
+    let replayDirection = 1;
+    const replayControls = document.getElementById('replay-controls');
+    const replayTimeline = document.getElementById('replayTimeline');
+    const replayFrameLabel = document.getElementById('replayFrameLabel');
+    const ghostStickToggle = document.getElementById('ghostStickToggle');
+    const ghostPuckToggle = document.getElementById('ghostPuckToggle');
+
+    function refreshReplayControls() {
+      const active = game.replayPlayback !== null;
+      replayControls.classList.toggle('visible', active);
+      if (!active) {
+        if (ghostStickGroup) ghostStickGroup.visible = false;
+        ghostPuck.visible = false;
+        game.puck.visible = true;
+        if (stickGroup) stickGroup.visible = true;
+        return;
+      }
+      replayTimeline.max = Math.max(0, game.replayFrames.length - 1);
+      replayTimeline.value = game.replayPlayback;
+      replayFrameLabel.textContent = `${Math.floor(game.replayPlayback)} / ${Math.max(0, game.replayFrames.length - 1)}`;
+      if (ghostStickGroup) ghostStickGroup.visible = ghostStickToggle.checked;
+      if (stickGroup) stickGroup.visible = !ghostStickToggle.checked;
+      ghostPuck.visible = ghostPuckToggle.checked;
+      game.puck.visible = !ghostPuckToggle.checked;
+      document.getElementById('replayPlayPause').textContent = replayPaused ? '▶ Afspelen' : '❚❚ Pauze';
     }
 
     function resetPuck() {
-      game.puck.position.set(95, 12.5, -20576);
+      game.puck.position.set(95, 12.5, -20120);
+      game.puck.rotation.set(0, 0, 0);
       game.puckVelocity.set(0, 0, 0);
       game.puckState = 'idle';
+      game.shotAim = null;
+      game.replayRecording = false;
+      game.replayPlayback = null;
+      replayPaused = false;
+      refreshReplayControls();
+      game.bladeTipSpeed = 0;
+      game.bladeContactProgress = 0;
+      game.lastBladeTipPosition = null;
+      game.bladeVelocity.set(0, 0, 0);
+      game.bladeForwardSpeed = 0;
+      game.peakBladeForwardSpeed = 0;
+      game.bladeDecelerationFrames = 0;
+      game.lastBladeCenterPosition = null;
+      document.getElementById('btnInstantReplay').disabled = game.replayFrames.length < 2;
+      swipeData.triggered = false;
 
       // Auto pause if it was playing
       if (state.isPlaying) {
@@ -2001,6 +2547,53 @@
       }
     }
 
+    document.getElementById('btnInstantReplay').addEventListener('click', () => {
+      if (game.replayFrames.length < 2 || game.replayRecording) return;
+      game.replayPlayback = 0;
+      replayDirection = 1;
+      replayPaused = false;
+      game.puckState = 'replay';
+      refreshReplayControls();
+    });
+
+    document.getElementById('replayPlayPause').addEventListener('click', () => {
+      if (game.replayPlayback === null) return;
+      replayPaused = !replayPaused;
+      if (!replayPaused && game.replayPlayback >= game.replayFrames.length - 1) {
+        game.replayPlayback = 0;
+        replayDirection = 1;
+      }
+      refreshReplayControls();
+    });
+    document.getElementById('replayRewind').addEventListener('click', () => {
+      if (game.replayPlayback === null) return;
+      replayDirection = -1;
+      replayPaused = false;
+      refreshReplayControls();
+    });
+    document.getElementById('replayStepBack').addEventListener('click', () => {
+      if (game.replayPlayback === null) return;
+      replayPaused = true;
+      replayDirection = -1;
+      game.replayPlayback = Math.max(0, game.replayPlayback - 1);
+      refreshReplayControls();
+    });
+    document.getElementById('replayStepForward').addEventListener('click', () => {
+      if (game.replayPlayback === null) return;
+      replayPaused = true;
+      replayDirection = 1;
+      game.replayPlayback = Math.min(game.replayFrames.length - 1, game.replayPlayback + 1);
+      refreshReplayControls();
+    });
+    replayTimeline.addEventListener('input', () => {
+      if (game.replayPlayback === null) return;
+      replayPaused = true;
+      game.replayPlayback = Number(replayTimeline.value);
+      refreshReplayControls();
+    });
+    ghostStickToggle.addEventListener('change', refreshReplayControls);
+    ghostPuckToggle.addEventListener('change', refreshReplayControls);
+
     // Animation Loop
     function animate() {
       requestAnimationFrame(animate);
@@ -2008,24 +2601,11 @@
       const delta = Math.min(0.05, (now - lastTime) / 1000);
       lastTime = now;
 
-      // Stick Physics & Collider
-      if (stickGroup) {
-        stickVelocityY -= 3800 * delta; // Gravity
-        stickGroup.position.y += stickVelocityY * delta;
-
-        // Ensure matrices are up to date for accurate bounding box
-        stickGroup.updateMatrixWorld(true);
-        const stickBox = new THREE.Box3().setFromObject(stickGroup, true);
-
-        // Ice is at y=0, check if bottom of stick goes below
-        if (stickBox.min.y < 0) {
-           const penetration = 0 - stickBox.min.y;
-           stickGroup.position.y += penetration; // Push up to surface
-           stickVelocityY = 0; // Stop falling
-        }
-      }
+      // The stick stays at its ice-aligned rest height; only shaft flex changes its shape.
+      // Do not apply gravity to the parent group or re-align it from the changing flexed bounds.
 
       if (state.isPlaying && !state.holdMaxBend) {
+        // Use the same timeline playback rate as the Settings animation.
         const stepRate = 800 * delta;
         let next = state.timeline + stepRate * playDirection;
         if (next >= 1200) {
@@ -2039,46 +2619,152 @@
         syncUiFromState();
         updatePhysics();
 
-        // Blade collision detection
-        // The blade moves in -Z direction and +Y direction during whip
-        // We trigger shot when timeline is around the peak release (600-700ms)
-        // and blade is close to puck
-        if (game.puckState === 'idle' && state.timeline > 650 && state.timeline < 800) {
-           game.puckState = 'shot';
-           game.shots++;
-           updateGameScore();
+        // Keep the puck stationary until the blade physically reaches it.
+        let bladeContactProgress = null;
+        if (swipeData.triggered && state.timeline >= game.contactTime - 80) {
+            bladeContactProgress = getBladeContactProgress();
+        }
 
-           // Apply velocity based on state params, swipe power, accuracy, and stiffness profile
-           const whip = state.bladeWhipStrength / 100;
-           const stiffnessDynamics = getStiffnessDynamics();
+        if (game.puckState === 'idle' && swipeData.triggered && bladeContactProgress !== null) {
+          game.puckState = 'attached'; // Attach the puck!
+          game.bladeContactProgress = 0; // The puck should always start at the front of the blade (heel side) when caught.
 
-           // If swiped, use the calculated power and accuracy, otherwise fallback to defaults
-           const swipePwr = swipeData.triggered ? (swipeData.power / 100) : 0.8;
-           const swipeAcc = swipeData.triggered ? swipeData.accuracy : (Math.random() - 0.5) * 0.1;
+          game.contactTime = state.timeline;
+          const stiffnessDynamics = getStiffnessDynamics();
+          game.releaseTime = game.contactTime + 180 * stiffnessDynamics.timingScale;
 
-           // Power is heavily influenced by swipe and stiffness profile (higher kick = more power)
-           const powerMultiplier = swipePwr * stiffnessDynamics.powerScale;
+          const contactHeel = getBladePoint(game.bladeHeelIndex);
+          const contactTip = getBladePoint(game.bladeTipIndex);
+          const contactBladeAxis = contactTip.clone().sub(contactHeel);
+          const contactPoint = contactHeel.clone().addScaledVector(contactBladeAxis, game.bladeContactProgress);
 
-           // Multiply speeds to accommodate the much larger 26m rink
-           const speedZ = (-20000 - (5000 * whip)) * powerMultiplier; // Fast in -Z towards net
-           const speedY = (1000 + (1200 * whip)) * powerMultiplier;  // Upwards lift
-           // Accuracy directs the shot left/right. deviation * high multiplier
-           const speedX = swipeAcc * 15000;
+          game.bladeContactAxis.copy(contactBladeAxis.normalize());
 
-           game.puckVelocity.set(speedX, speedY, speedZ);
+          const upVector = new THREE.Vector3(0, 1, 0);
+          let frontNormal = new THREE.Vector3().crossVectors(game.bladeContactAxis, upVector).normalize();
+          if (frontNormal.z > 0) frontNormal.negate();
 
-           // Reset swipe triggered state
-           swipeData.triggered = false;
+          const bladeClearance = 54;
+          game.bladeContactOffset.copy(frontNormal).multiplyScalar(bladeClearance);
+
+          game.bladeVelocity.set(0, 0, 0);
+          game.bladeForwardSpeed = 0;
+          game.peakBladeForwardSpeed = 0;
+          game.bladeDecelerationFrames = 0;
+          game.lastBladeCenterPosition = null;
+          game.shots++;
+          updateGameScore();
+        }
+
+        if (game.puckState === 'attached') {
+          const rollProgress = Math.max(0, Math.min(1,
+            (state.timeline - game.contactTime) / (game.releaseTime - game.contactTime)));
+          if (game.bladeHeelIndex >= 0 && game.bladeTipIndex >= 0) {
+            const heel = getBladePoint(game.bladeHeelIndex);
+            const tip = getBladePoint(game.bladeTipIndex);
+            if (game.lastBladeTipPosition && delta > 0) {
+              const instantTipSpeed = tip.distanceTo(game.lastBladeTipPosition) / delta;
+              game.bladeTipSpeed = THREE.MathUtils.lerp(game.bladeTipSpeed, instantTipSpeed, 0.35);
+            }
+            game.lastBladeTipPosition = tip.clone();
+
+            // Track the blade's forward velocity and detect when it begins to decelerate.
+            const bladeCenter = heel.clone().add(tip).multiplyScalar(0.5);
+            if (game.lastBladeCenterPosition && delta > 0) {
+              const instantBladeVelocity = bladeCenter.clone()
+                .sub(game.lastBladeCenterPosition).multiplyScalar(1 / delta);
+              game.bladeVelocity.lerp(instantBladeVelocity, 0.4);
+              game.bladeForwardSpeed = -game.bladeVelocity.z;
+              if (game.bladeForwardSpeed > game.peakBladeForwardSpeed) {
+                game.peakBladeForwardSpeed = game.bladeForwardSpeed;
+                game.bladeDecelerationFrames = 0;
+              } else if (game.peakBladeForwardSpeed > 300 &&
+                         game.bladeForwardSpeed < game.peakBladeForwardSpeed * 0.92) {
+                game.bladeDecelerationFrames++;
+              } else {
+                game.bladeDecelerationFrames = 0;
+              }
+            }
+            game.lastBladeCenterPosition = bladeCenter;
+
+            // Allow the puck to roll up to and slightly off the end of the blade before flying.
+            // "Op het moment dat de punt van het blad zijn pieksnelheid heeft bereikt dan is de puck precies net voorbij de punt van het blad gerold"
+            const bladeRollProgress = game.bladeContactProgress +
+              (1.05 - game.bladeContactProgress) * rollProgress;
+
+            const currentBladeAxis = tip.clone().sub(heel).normalize();
+            const contactOffset = game.bladeContactOffset.clone().applyQuaternion(
+              new THREE.Quaternion().setFromUnitVectors(game.bladeContactAxis, currentBladeAxis)
+            );
+            game.puck.position.lerpVectors(heel, tip, bladeRollProgress).add(contactOffset);
+            game.puck.position.y = 12.5; // lock to ice level so it doesn't fly up
+            // A modest, steady spin; the puck's path and orientation do not wobble on the blade.
+            game.puck.rotation.set(0, rollProgress * Math.PI * 1.2, 0);
+          }
+
+          const bladeHasStartedSlowing = game.peakBladeForwardSpeed > 300 &&
+            game.bladeDecelerationFrames >= 3;
+          const releaseSafetyLimitReached = state.timeline >= game.contactTime + 420;
+          const rollOffBlade = (game.bladeContactProgress + (1.05 - game.bladeContactProgress) * Math.max(0, Math.min(1, (state.timeline - game.contactTime) / (game.releaseTime - game.contactTime)))) >= 1.0;
+
+          if (bladeHasStartedSlowing || releaseSafetyLimitReached || rollOffBlade) {
+            const target = game.shotAim || new THREE.Vector3(0, 300, game.net.position.z);
+            const aimDeltaX = target.x - game.puck.position.x;
+            if (game.shotDeviationX * aimDeltaX < 0) {
+              game.shotDeviationX = -Math.sign(aimDeltaX) * Math.min(
+                Math.abs(game.shotDeviationX), Math.abs(aimDeltaX) * 0.5
+              );
+            }
+            const flightTarget = target.clone();
+            flightTarget.x += game.shotDeviationX;
+            flightTarget.z = game.net.position.z - 50;
+            const shotDirection = flightTarget.clone().sub(game.puck.position).normalize();
+            const stiffnessDynamics = getStiffnessDynamics();
+            const swipePower = swipeData.power ? swipeData.power / 100 : 0.8;
+            const whip = state.bladeWhipStrength / 100;
+            // The swipe loads the shot, while the moving blade supplies most of the release impulse.
+            const swipeDrivenSpeed = (5000 + 7000 * whip) * (0.35 + 0.65 * swipePower) * stiffnessDynamics.powerScale;
+            const launchVelocity = shotDirection.multiplyScalar(swipeDrivenSpeed)
+              .add(game.bladeVelocity);
+            game.puckVelocity.copy(launchVelocity.multiplyScalar(gameSettings.shotSpeed));
+            const speed = game.puckVelocity.length();
+            game.flightStart.copy(game.puck.position);
+            game.flightDuration = game.flightStart.distanceTo(flightTarget) / speed;
+
+            game.shotElapsed = 0;
+            game.shotWobbleOffset = 0;
+            game.shotWobble = THREE.MathUtils.clamp(
+              (1 - swipePower) * 90 + Math.abs(swipeData.accuracy) * 1000,
+              0,
+              240
+            );
+            game.puckState = 'shot';
+            document.getElementById('btnInstantReplay').disabled = true;
+            swipeData.triggered = false;
+          }
         }
       }
 
       // Puck Physics
       if (game.puckState === 'shot' || game.puckState === 'goal') {
-        // Apply gravity
-        game.puckVelocity.y -= 3800 * delta; // Increased gravity so it falls faster on the big scale
+        // Keep clean shots on a direct line; only settled pucks in the net fall under gravity.
+        if (game.puckState === 'goal') game.puckVelocity.y -= 3800 * delta;
 
-        // Move puck
-        game.puck.position.addScaledVector(game.puckVelocity, delta);
+        // Keep the puck center on a straight trajectory; turbulence only tilts it visually.
+        if (game.puckState === 'shot') {
+          game.shotElapsed += delta;
+          game.puckVelocity.y -= 9810 * delta; // Gravity in mm/s² (9.81 m/s²).
+          game.puck.position.addScaledVector(game.puckVelocity, delta);
+          const wobbleAmount = THREE.MathUtils.clamp(game.shotWobble / 240, 0, 1);
+          const turbulence = Math.sin(game.shotElapsed * 24) * wobbleAmount * 0.12;
+          game.puck.rotation.set(
+            turbulence,
+            game.shotElapsed * 8,
+            Math.sin(game.shotElapsed * 19 + 0.8) * wobbleAmount * 0.08
+          );
+        } else {
+          game.puck.position.addScaledVector(game.puckVelocity, delta);
+        }
 
         // Floor collision
         if (game.puck.position.y < 12.5) {
@@ -2125,8 +2811,11 @@
                 goalEl.style.zIndex = '50';
                 document.body.appendChild(goalEl);
 
-                // Slow puck down in net
+                // Slow puck down in net and finish the replay at the goal.
                 game.puckVelocity.multiplyScalar(0.1);
+                game.replayFrames.push(captureReplayFrame());
+                game.replayRecording = false;
+                document.getElementById('btnInstantReplay').disabled = game.replayFrames.length < 2;
 
                 setTimeout(() => {
                   goalEl.remove();
@@ -2141,8 +2830,59 @@
            } else if (game.puckVelocity.lengthSq() < 1000 && game.puck.position.z < -20600) {
               // Reset if the puck slows down significantly and is away from starting pos
               resetPuck();
+           } else if (game.shotElapsed > 8) {
+              // End missed or stalled shots so their replay recording becomes available.
+              resetPuck();
            }
         }
+      }
+
+      if (game.replayPlayback !== null && game.replayFrames.length > 1) {
+        const frames = game.replayFrames;
+        const framePosition = Math.max(0, Math.min(frames.length - 1, game.replayPlayback));
+        const frameIndex = Math.min(Math.floor(framePosition), frames.length - 2);
+        const blend = framePosition - frameIndex;
+        const from = frames[frameIndex];
+        const to = frames[Math.min(frameIndex + 1, frames.length - 1)];
+        game.puck.position.lerpVectors(from.position, to.position, blend);
+        game.puck.rotation.set(
+          THREE.MathUtils.lerp(from.rotation.x, to.rotation.x, blend),
+          THREE.MathUtils.lerp(from.rotation.y, to.rotation.y, blend),
+          THREE.MathUtils.lerp(from.rotation.z, to.rotation.z, blend)
+        );
+        ghostPuck.position.copy(game.puck.position);
+        ghostPuck.rotation.copy(game.puck.rotation);
+
+        if (ghostStickMesh && from.stickPositions && to.stickPositions) {
+          const positions = ghostStickMesh.geometry.attributes.position.array;
+          for (let i = 0; i < positions.length; i++) {
+            positions[i] = THREE.MathUtils.lerp(from.stickPositions[i], to.stickPositions[i], blend);
+          }
+          ghostStickMesh.geometry.attributes.position.needsUpdate = true;
+          ghostStickMesh.geometry.computeVertexNormals();
+          ghostStickMesh.geometry.computeBoundingSphere();
+          ghostStickGroup.position.lerpVectors(from.stickGroupPosition, to.stickGroupPosition, blend);
+          ghostStickGroup.quaternion.slerpQuaternions(from.stickGroupQuaternion, to.stickGroupQuaternion, blend);
+        }
+        refreshReplayControls();
+        if (!replayPaused) {
+          game.replayPlayback += delta * 60 * Number(document.getElementById('replaySpeed').value) * replayDirection;
+          if (game.replayPlayback >= frames.length - 1) {
+            game.replayPlayback = frames.length - 1;
+            replayPaused = true;
+          } else if (game.replayPlayback <= 0 && replayDirection < 0) {
+            game.replayPlayback = 0;
+            replayPaused = true;
+          }
+        }
+      }
+
+      if (game.replayRecording) {
+        if (game.replayFrames.length > 400) {
+            game.replayFrames.shift();
+        }
+        game.replayFrames.push(captureReplayFrame());
+        document.getElementById('btnInstantReplay').disabled = true;
       }
 
       controls.update();
